@@ -410,8 +410,10 @@ class Scene {
 		var objectsTraversed = 0;
 		var obj = getRawObjectByName(raw, name);
 		var objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
+		var rootid = -1;
 		function spawnObjectTree(obj: TObj, parent: Object, parentObject: TObj, done: Object->Void) {
 			createObject(obj, raw, parent, parentObject, function(object: Object) {
+				if (rootid == -1)rootid = object.uid;
 				if (spawnChildren && obj.children != null) {
 					for (child in obj.children) spawnObjectTree(child, object, obj, done);
 				}
@@ -419,7 +421,8 @@ class Scene {
 					// Retrieve the originally spawned object from the current
 					// child object to ensure done() is called with the right
 					// object
-					while (object.name != name) object = object.parent;
+					while (object.uid != rootid) object = object.parent;
+					object.name = name;
 					done(object);
 				}
 			});
